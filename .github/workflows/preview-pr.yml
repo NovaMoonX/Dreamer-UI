@@ -22,6 +22,7 @@ jobs:
         run: |
           npm ci
           npm run build
+          tsc --project tsconfig.lib.json
           npm pack
       - name: Install App Dependencies with Local Lib
         working-directory: app
