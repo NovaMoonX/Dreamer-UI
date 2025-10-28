@@ -7,8 +7,9 @@
     "dev": "vite --host",
     "dev:local": "vite --host --config vite.config.dev.ts",
     "build": "tsc -b && vite build",
-    "build:local": "tsc -p tsconfig.dev.json && vite build --config vite.config.dev.ts",
+    "build:local": "vite build --config vite.config.dev.ts && tsc -p tsconfig.dev.json",
     "predeploy": "npm run build && npm run preview",
+    "predeploy:local": "npm run build:local && npm run preview",
     "fbdeploy": "npm run build && firebase deploy",
     "lint": "eslint .",
     "preview": "vite preview"
