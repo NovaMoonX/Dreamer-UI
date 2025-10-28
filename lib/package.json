@@ -64,12 +64,12 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:lib && npm run build:setup && npm run build:types",
+    "build": "npm run build:lib && npm run build:types && npm run build:setup",
     "build:lib": "vite build --config vite.config.lib.mts",
     "build:types": "tsc --project tsconfig.lib.json",
     "build:demo": "tsc -b && vite build",
-    "build:setup": "cp scripts/init.js dist/init.js && node scripts/add-theme.js",
-    "postbuild": "chmod +x dist/init.js && npm run build:types",
+    "build:setup": "cp scripts/init.js dist/init.js && node scripts/add-theme.js && node scripts/create-type-exports.js",
+    "postbuild": "chmod +x dist/init.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "publish:test": "npm version prerelease --preid=test && npm publish --tag test"
