@@ -21,7 +21,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, './src'),
-		// CSS from dist (build artifact) - more specific aliases go first!
+			// CSS from dist (build artifact) - more specific aliases go first!
 			'@moondreamsdev/dreamer-ui/styles': path.resolve(__dirname, '../lib/dist/styles.css'),
 			// Components from source for HMR
 			'@moondreamsdev/dreamer-ui': path.resolve(__dirname, '../lib/src'),

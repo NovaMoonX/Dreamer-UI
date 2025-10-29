@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback, useId } from 
 import { useSelectDropdown, useSelectKeyboardNavigation, useSelectHighlight, SelectOption } from './hooks';
 import { sizeVariants, SelectSize } from './variants';
 import { join } from '../../utils';
-import { Check, ChevronDown, X } from '../../symbols';
+import { Check, ChevronDown, X, Plus } from '../../symbols';
 import { ScrollArea } from '../scroll-area';
 
 export type { SelectOption };
@@ -20,6 +20,8 @@ export interface SelectProps {
   disabled?: boolean;
   /** Whether to show a clear button to reset selection. */
   clearable?: boolean;
+  /** Whether to allow adding new options when search query doesn't match. */
+  allowAdd?: boolean;
   /** The size variant of the select. */
   size?: SelectSize;
   /** Additional CSS classes to apply to the select container. */
@@ -36,6 +38,8 @@ export interface SelectProps {
   onChange?: (value: string) => void;
   /** Callback fired when search input changes (searchable mode). */
   onSearch?: (searchTerm: string) => void;
+  /** Callback fired when adding a new option (allowAdd mode). */
+  onAdd?: (value: string) => void;
   /** Placeholder text for the search input (searchable mode). */
   searchPlaceholder?: string;
 }
@@ -72,6 +76,18 @@ export interface SelectProps {
  *   searchPlaceholder="Search frameworks..."
  *   onChange={setFramework}
  * />
+ * 
+ * // Searchable select with add functionality
+ * <Select
+ *   options={options}
+ *   searchable
+ *   allowAdd
+ *   onAdd={(newValue) => {
+ *     setOptions([...options, { text: newValue, value: newValue }]);
+ *   }}
+ *   onChange={setValue}
+ *   placeholder="Select or add new..."
+ * />
  * ```
  */
 export function Select({
@@ -81,6 +97,7 @@ export function Select({
   searchable = false,
   disabled = false,
   clearable = false,
+  allowAdd = false,
   size = 'md',
   className,
   triggerClassName,
@@ -89,6 +106,7 @@ export function Select({
   ref,
   onChange,
   onSearch,
+  onAdd,
   searchPlaceholder = 'Search options...',
 }: SelectProps) {
   const generatedId = useId();
@@ -116,6 +134,16 @@ export function Select({
         option.description?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [options, searchable, searchTerm]);
+
+  // Check if we should show the "Add" option
+  const showAddOption = useMemo(() => {
+    if (!allowAdd || !searchable || !searchTerm) return false;
+    // Show add option if search term doesn't match any existing option exactly or partially
+    const hasExactMatch = options.some(
+      (option) => option.text.toLowerCase() === searchTerm.toLowerCase()
+    );
+    return !hasExactMatch && filteredOptions.length === 0;
+  }, [allowAdd, searchable, searchTerm, options, filteredOptions]);
 
   const selectedOption = useMemo(() => options.find((option) => option.value === value), [options, value]);
 
@@ -198,6 +226,14 @@ export function Select({
     }
   };
 
+  const handleAddClick = () => {
+    if (searchTerm.trim()) {
+      onAdd?.(searchTerm.trim());
+      setIsOpen(false);
+      setSearchTerm('');
+    }
+  };
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchTerm(term);
@@ -221,6 +257,7 @@ export function Select({
       data-searchable={searchable}
       data-disabled={disabled}
       data-clearable={clearable}
+      data-allow-add={allowAdd}
     >
       {/* Trigger Button */}
       <div className='relative'>
@@ -329,6 +366,23 @@ export function Select({
                   {value === option.value && <Check size={16} className='ml-2 text-primary flex-shrink-0' />}
                 </div>
               ))
+            ) : showAddOption ? (
+              <div
+                className={join(
+                  'flex items-center cursor-pointer transition-colors',
+                  'hover:bg-accent/10 focus:bg-accent/10',
+                  sizeVariants[size].options
+                )}
+                onClick={handleAddClick}
+                role='option'
+                aria-selected={false}
+                data-select-add-option='true'
+              >
+                <Plus size={16} className='mr-2 text-primary flex-shrink-0' />
+                <div className='flex-1 min-w-0'>
+                  <div className='font-medium'>Add "{searchTerm}"</div>
+                </div>
+              </div>
             ) : (
               <div className='px-3 py-2 text-sm opacity-70 text-center'>
                 {searchable && searchTerm ? 'No results found' : 'No options available'}

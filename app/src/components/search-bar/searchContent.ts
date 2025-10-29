@@ -668,19 +668,28 @@ const searchIndex: SearchResult[] = [
 	{
 		title: 'Select',
 		path: '/components/select',
-		description: 'Dropdown selection component with search and multi-selection capabilities.',
+		description: 'Dropdown selection component with search and add capabilities.',
 		type: 'Component',
-		content: 'select dropdown combobox searchable options value onChange placeholder props',
+		content: 'select dropdown combobox searchable allowAdd onAdd add new options value onChange placeholder props',
 		rank: 10,
 	},
 	{
 		title: 'Select Props',
 		path: '/components/select',
 		section: 'Props',
-		description: 'Select component properties including searchable, clearable, and options.',
+		description: 'Select component properties including searchable, clearable, allowAdd, and options.',
 		type: 'Props',
-		content: 'select props properties options searchable clearable value onChange placeholder disabled className',
+		content: 'select props properties options searchable clearable allowAdd onAdd value onChange placeholder disabled className',
 		rank: 8,
+	},
+	{
+		title: 'Select With Add Example',
+		path: '/components/select',
+		section: 'With Add',
+		description: 'Searchable select with ability to add new options when query doesn\'t match existing ones.',
+		type: 'Example',
+		content: 'select allowAdd onAdd add new options create dynamic searchable dropdown custom values example',
+		rank: 7,
 	},
 
 	// Separator Component
