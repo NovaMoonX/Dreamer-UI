@@ -2,52 +2,52 @@ import React, { useState, useRef, useEffect, useMemo, useCallback, useId } from 
 import { useSelectDropdown, useSelectKeyboardNavigation, useSelectHighlight, SelectOption } from './hooks';
 import { sizeVariants, SelectSize } from './variants';
 import { join } from '../../utils';
-import { Check, ChevronDown, X, Plus } from '../../symbols';
+import { Check, ChevronDown, X } from '../../symbols';
 import { ScrollArea } from '../scroll-area';
 
 export type { SelectOption };
 
 export interface SelectProps {
-  /** Array of option objects. SelectOption: { text: string, value: string, disabled?: boolean, description?: string } */
-  options: SelectOption[];
-  /** The current value of the select (controlled). */
-  value?: string;
-  /** Placeholder text to show when no option is selected. */
-  placeholder?: string;
-  /** Whether the select is searchable (combobox mode). */
-  searchable?: boolean;
-  /** Whether the entire select is disabled. */
-  disabled?: boolean;
-  /** Whether to show a clear button to reset selection. */
-  clearable?: boolean;
-  /** Whether to allow adding new options when search query doesn't match. */
-  allowAdd?: boolean;
-  /** The size variant of the select. */
-  size?: SelectSize;
-  /** Additional CSS classes to apply to the select container. */
-  className?: string;
-  /** Additional CSS classes to apply to the trigger button. */
-  triggerClassName?: string;
-  /** Additional CSS classes to apply to the dropdown menu. */
-  dropdownClassName?: string;
-  /** The HTML id attribute for the select. */
-  id?: string;
-  /** Reference to the select container element. */
-  ref?: React.Ref<HTMLDivElement>;
-  /** Callback fired when the selection changes. */
-  onChange?: (value: string) => void;
-  /** Callback fired when search input changes (searchable mode). */
-  onSearch?: (searchTerm: string) => void;
-  /** Callback fired when adding a new option (allowAdd mode). */
-  onAdd?: (value: string) => void;
-  /** Placeholder text for the search input (searchable mode). */
-  searchPlaceholder?: string;
+	/** Array of option objects. SelectOption: { text: string, value: string, disabled?: boolean, description?: string } */
+	options: SelectOption[];
+	/** The current value of the select (controlled). */
+	value?: string;
+	/** Placeholder text to show when no option is selected. */
+	placeholder?: string;
+	/** Whether the select is searchable (combobox mode). */
+	searchable?: boolean;
+	/** Whether the entire select is disabled. */
+	disabled?: boolean;
+	/** Whether to show a clear button to reset selection. */
+	clearable?: boolean;
+	/** Whether to allow adding new options when search query doesn't match. Requires `searchable` to be true. */
+	allowAdd?: boolean;
+	/** The size variant of the select. */
+	size?: SelectSize;
+	/** Additional CSS classes to apply to the select container. */
+	className?: string;
+	/** Additional CSS classes to apply to the trigger button. */
+	triggerClassName?: string;
+	/** Additional CSS classes to apply to the dropdown menu. */
+	dropdownClassName?: string;
+	/** The HTML id attribute for the select. */
+	id?: string;
+	/** Reference to the select container element. */
+	ref?: React.Ref<HTMLDivElement>;
+	/** Callback fired when the selection changes. */
+	onChange?: (value: string) => void;
+	/** Callback fired when search input changes (searchable mode). */
+	onSearch?: (searchTerm: string) => void;
+	/** Callback fired when adding a new option (allowAdd mode). */
+	onAdd?: (value: string) => void;
+	/** Placeholder text for the search input (searchable mode). */
+	searchPlaceholder?: string;
 }
 
 /**
  * A feature-rich select component with search, keyboard navigation, and accessibility.
  * Supports both simple selection and searchable combobox functionality.
- * 
+ *
  * @example
  * ```tsx
  * // Basic select
@@ -56,14 +56,14 @@ export interface SelectProps {
  *   { text: 'Banana', value: 'banana' },
  *   { text: 'Orange', value: 'orange' }
  * ];
- * 
+ *
  * <Select
  *   options={options}
  *   value={selectedFruit}
  *   onChange={setSelectedFruit}
  *   placeholder="Choose a fruit"
  * />
- * 
+ *
  * // Searchable select with descriptions
  * <Select
  *   options={[
@@ -76,7 +76,7 @@ export interface SelectProps {
  *   searchPlaceholder="Search frameworks..."
  *   onChange={setFramework}
  * />
- * 
+ *
  * // Searchable select with add functionality
  * <Select
  *   options={options}
@@ -91,306 +91,305 @@ export interface SelectProps {
  * ```
  */
 export function Select({
-  options,
-  value,
-  placeholder = 'Select an option...',
-  searchable = false,
-  disabled = false,
-  clearable = false,
-  allowAdd = false,
-  size = 'md',
-  className,
-  triggerClassName,
-  dropdownClassName,
-  id,
-  ref,
-  onChange,
-  onSearch,
-  onAdd,
-  searchPlaceholder = 'Search options...',
+	options,
+	value,
+	placeholder = 'Select an option...',
+	searchable = false,
+	disabled = false,
+	clearable = false,
+	allowAdd = false,
+	size = 'md',
+	className,
+	triggerClassName,
+	dropdownClassName,
+	id,
+	ref,
+	onChange,
+	onSearch,
+	onAdd,
+	searchPlaceholder = 'Search options...',
 }: SelectProps) {
-  const generatedId = useId();
-  const activeId = id ?? generatedId;
-  const listboxId = `${activeId}-listbox`;
+	const generatedId = useId();
+	const activeId = id ?? generatedId;
+	const listboxId = `${activeId}-listbox`;
 
-  const getOptionId = (index: number) => `${listboxId}-option-${index}`;
+	const getOptionId = (index: number) => `${listboxId}-option-${index}`;
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+	const [isOpen, setIsOpen] = useState(false);
+	const [searchTerm, setSearchTerm] = useState('');
 
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const optionsContainerRef = useRef<HTMLDivElement>(null);
+	const triggerRef = useRef<HTMLButtonElement>(null);
+	const searchInputRef = useRef<HTMLInputElement>(null);
+	const dropdownRef = useRef<HTMLDivElement>(null);
+	const optionsContainerRef = useRef<HTMLDivElement>(null);
 
-  const { show, shouldRender } = useSelectDropdown(isOpen);
+	const { show, shouldRender } = useSelectDropdown(isOpen);
 
-  // Filter options based on search term
-  const filteredOptions = useMemo(() => {
-    if (!searchable || !searchTerm) return options;
-    return options.filter(
-      (option) =>
-        option.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        option.description?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [options, searchable, searchTerm]);
+	// Filter options based on search term
+	const filteredOptions = useMemo(() => {
+		if (!searchable || !searchTerm) return options;
+		return options.filter(
+			(option) =>
+				option.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				option.description?.toLowerCase().includes(searchTerm.toLowerCase())
+		);
+	}, [options, searchable, searchTerm]);
 
-  // Check if we should show the "Add" option
-  const showAddOption = useMemo(() => {
-    if (!allowAdd || !searchable || !searchTerm) return false;
-    // Show add option if search term doesn't match any existing option exactly or partially
-    const hasExactMatch = options.some(
-      (option) => option.text.toLowerCase() === searchTerm.toLowerCase()
-    );
-    return !hasExactMatch && filteredOptions.length === 0;
-  }, [allowAdd, searchable, searchTerm, options, filteredOptions]);
+	// Check if we should show the "Add" option
+	const showAddOption = useMemo(() => {
+		if (!allowAdd || !searchable || !searchTerm) return false;
+		// Show add option if search term doesn't match any existing option exactly or partially
+		const hasExactMatch = options.some((option) => option.text.toLowerCase() === searchTerm.toLowerCase());
+		return !hasExactMatch && filteredOptions.length === 0;
+	}, [allowAdd, searchable, searchTerm, options, filteredOptions]);
 
-  const selectedOption = useMemo(() => options.find((option) => option.value === value), [options, value]);
+	const selectedOption = useMemo(() => options.find((option) => option.value === value), [options, value]);
 
-  // Use the highlight hook
-  const { highlightedIndex, setHighlightedIndex } = useSelectHighlight({
-    isOpen,
-    filteredOptions,
-    selectedOption,
-    shouldRender,
-    optionsContainerRef,
-  });
+	// Use the highlight hook
+	const { highlightedIndex, setHighlightedIndex } = useSelectHighlight({
+		isOpen,
+		filteredOptions,
+		selectedOption,
+		shouldRender,
+		optionsContainerRef,
+	});
 
-  const activeDescendantId = highlightedIndex >= 0 ? getOptionId(highlightedIndex) : undefined;
+	const activeDescendantId = highlightedIndex >= 0 ? getOptionId(highlightedIndex) : undefined;
 
-  // Focus search input when dropdown opens
-  useEffect(() => {
-    if (isOpen && shouldRender && searchable && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [isOpen, searchable, shouldRender]);
+	// Focus search input when dropdown opens
+	useEffect(() => {
+		if (isOpen && shouldRender && searchable && searchInputRef.current) {
+			searchInputRef.current.focus();
+		}
+	}, [isOpen, searchable, shouldRender]);
 
-  const keyboardOnSelect = useCallback(
-    (option: SelectOption) => {
-      if (!option.disabled) {
-        onChange?.(option.value);
-        setIsOpen(false);
-        setSearchTerm('');
-        triggerRef.current?.focus();
-      }
-    },
-    [onChange]
-  );
+	const keyboardOnSelect = useCallback(
+		(option: SelectOption) => {
+			if (!option.disabled) {
+				onChange?.(option.value);
+				setIsOpen(false);
+				setSearchTerm('');
+				triggerRef.current?.focus();
+			}
+		},
+		[onChange]
+	);
 
-  const { handleKeyDown } = useSelectKeyboardNavigation({
-    isOpen,
-    setIsOpen,
-    filteredOptions,
-    highlightedIndex,
-    setHighlightedIndex,
-    onSelect: keyboardOnSelect,
-    triggerRef,
-  });
+	const { handleKeyDown } = useSelectKeyboardNavigation({
+		isOpen,
+		setIsOpen,
+		filteredOptions,
+		highlightedIndex,
+		setHighlightedIndex,
+		onSelect: keyboardOnSelect,
+		triggerRef,
+	});
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
+	// Close dropdown when clicking outside
+	useEffect(() => {
+		if (!isOpen) {
+			return;
+		}
 
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        !triggerRef.current?.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-        setSearchTerm('');
-      }
-    };
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				dropdownRef.current &&
+				!dropdownRef.current.contains(event.target as Node) &&
+				!triggerRef.current?.contains(event.target as Node)
+			) {
+				setIsOpen(false);
+				setSearchTerm('');
+			}
+		};
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, [isOpen]);
 
-  const handleToggle = () => {
-    if (!disabled) {
-      setIsOpen(!isOpen);
-      if (!isOpen) {
-        setSearchTerm('');
-        setHighlightedIndex(-1);
-      }
-    }
-  };
+	const handleToggle = () => {
+		if (!disabled) {
+			setIsOpen(!isOpen);
+			if (!isOpen) {
+				setSearchTerm('');
+				setHighlightedIndex(-1);
+			}
+		}
+	};
 
-  const handleOptionClick = (option: SelectOption) => {
-    if (!option.disabled) {
-      onChange?.(option.value);
-      setIsOpen(false);
-      setSearchTerm('');
-    }
-  };
+	const handleOptionClick = (option: SelectOption) => {
+		if (!option.disabled) {
+			onChange?.(option.value);
+			setIsOpen(false);
+			setSearchTerm('');
+		}
+	};
 
-  const handleAddClick = () => {
-    if (searchTerm.trim()) {
-      onAdd?.(searchTerm.trim());
-      setIsOpen(false);
-      setSearchTerm('');
-    }
-  };
+	const handleAddClick = () => {
+		const trimmedSearchTerm = searchTerm.trim();
+		if (trimmedSearchTerm) {
+			onAdd?.(trimmedSearchTerm);
+			setIsOpen(false);
+			setSearchTerm('');
+		}
+	};
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const term = e.target.value;
-    setSearchTerm(term);
-    onSearch?.(term);
-    setHighlightedIndex(-1);
-  };
+	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const term = e.target.value;
+		setSearchTerm(term);
+		onSearch?.(term);
+		setHighlightedIndex(-1);
+	};
 
-  const handleClear = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onChange?.('');
-  };
+	const handleClear = (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		onChange?.('');
+	};
 
-  return (
-    <div
-      className={join('relative', className)}
-      id={id}
-      ref={ref}
-      data-select='true'
-      data-value={value}
-      data-searchable={searchable}
-      data-disabled={disabled}
-      data-clearable={clearable}
-      data-allow-add={allowAdd}
-    >
-      {/* Trigger Button */}
-      <div className='relative'>
-        <button
-          ref={triggerRef}
-          type='button'
-          className={join(
-            'flex items-center justify-between w-full text-left bg-inherit border border-border rounded-md transition-colors',
-            'hover:border-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary',
-            disabled && 'opacity-50 cursor-not-allowed hover:border-border',
-            isOpen && 'border-primary ring-1 ring-primary',
-            sizeVariants[size].trigger,
-            triggerClassName
-          )}
-          onClick={handleToggle}
-          onKeyDown={handleKeyDown}
-          disabled={disabled}
-          aria-disabled={disabled}
-          aria-haspopup='listbox'
-          aria-expanded={isOpen}
-          aria-controls={isOpen ? listboxId : undefined}
-          aria-activedescendant={isOpen && !searchable ? activeDescendantId : undefined}
-          aria-label={selectedOption ? selectedOption.text : placeholder}
-          data-select-trigger='true'
-        >
-          <span className={join('block truncate', !selectedOption && 'opacity-70')}>
-            {selectedOption ? selectedOption.text : placeholder}
-          </span>
-          <div className='flex items-center ml-2'>
-            <ChevronDown size={16} className={join('transition-transform', isOpen && 'rotate-180')} />
-          </div>
-        </button>
-        {clearable && selectedOption && (
-          <button
-            type='button'
-            onClick={handleClear}
-            className='absolute right-8 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-accent/20 transition-colors group z-10'
-            aria-label='Clear selection'
-            data-select-clear='true'
-          >
-            <X size={14} className='opacity-70 group-hover:opacity-100 transition-opacity' />
-          </button>
-        )}
-      </div>
+	return (
+		<div
+			className={join('relative', className)}
+			id={id}
+			ref={ref}
+			data-select='true'
+			data-value={value}
+			data-searchable={searchable}
+			data-disabled={disabled}
+			data-clearable={clearable}
+			data-allow-add={allowAdd}
+		>
+			{/* Trigger Button */}
+			<div className='relative'>
+				<button
+					ref={triggerRef}
+					type='button'
+					className={join(
+						'flex items-center justify-between w-full text-left bg-inherit border border-border rounded-md transition-colors',
+						'hover:border-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary',
+						disabled && 'opacity-50 cursor-not-allowed hover:border-border',
+						isOpen && 'border-primary ring-1 ring-primary',
+						sizeVariants[size].trigger,
+						triggerClassName
+					)}
+					onClick={handleToggle}
+					onKeyDown={handleKeyDown}
+					disabled={disabled}
+					aria-disabled={disabled}
+					aria-haspopup='listbox'
+					aria-expanded={isOpen}
+					aria-controls={isOpen ? listboxId : undefined}
+					aria-activedescendant={isOpen && !searchable ? activeDescendantId : undefined}
+					aria-label={selectedOption ? selectedOption.text : placeholder}
+					data-select-trigger='true'
+				>
+					<span className={join('block truncate', !selectedOption && 'opacity-70')}>
+						{selectedOption ? selectedOption.text : placeholder}
+					</span>
+					<div className='flex items-center ml-2'>
+						<ChevronDown size={16} className={join('transition-transform', isOpen && 'rotate-180')} />
+					</div>
+				</button>
+				{clearable && selectedOption && (
+					<button
+						type='button'
+						onClick={handleClear}
+						className='absolute right-8 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-accent/20 transition-colors group z-10'
+						aria-label='Clear selection'
+						data-select-clear='true'
+					>
+						<X size={14} className='opacity-70 group-hover:opacity-100 transition-opacity' />
+					</button>
+				)}
+			</div>
 
-      {/* Dropdown */}
-      {shouldRender && (
-        <div
-          ref={dropdownRef}
-          className={join(
-            'absolute z-50 w-full mt-1 bg-popover text-popover-foreground border border-border rounded-md shadow-lg transition-all',
-            show ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2',
-            dropdownClassName
-          )}
-          id={listboxId}
-          role='listbox'
-          data-select-content='true'
-        >
-          {/* Search Input */}
-          {searchable && (
-            <div className='border-b border-border'>
-              <input
-                ref={searchInputRef}
-                type='text'
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onKeyDown={handleKeyDown}
-                placeholder={searchPlaceholder}
-                className='w-full px-2 py-2 text-inherit focus:outline-none'
-                aria-autocomplete='list'
-                aria-controls={listboxId}
-                aria-activedescendant={activeDescendantId}
-                data-select-search='true'
-              />
-            </div>
-          )}
+			{/* Dropdown */}
+			{shouldRender && (
+				<div
+					ref={dropdownRef}
+					className={join(
+						'absolute z-50 w-full mt-1 bg-popover text-popover-foreground border border-border rounded-md shadow-lg transition-all',
+						show ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2',
+						dropdownClassName
+					)}
+					id={listboxId}
+					role='listbox'
+					data-select-content='true'
+				>
+					{/* Search Input */}
+					{searchable && (
+						<div className='border-b border-border'>
+							<input
+								ref={searchInputRef}
+								type='text'
+								value={searchTerm}
+								onChange={handleSearchChange}
+								onKeyDown={handleKeyDown}
+								placeholder={searchPlaceholder}
+								className='w-full px-2 py-2 text-inherit focus:outline-none'
+								aria-autocomplete='list'
+								aria-controls={listboxId}
+								aria-activedescendant={activeDescendantId}
+								data-select-search='true'
+							/>
+						</div>
+					)}
 
-          {/* Options */}
-          <ScrollArea ref={optionsContainerRef} viewportClassName='max-h-60'>
-            {filteredOptions.length > 0 ? (
-              filteredOptions.map((option, index) => (
-                <div
-                  key={option.value}
-                  id={getOptionId(index)}
-                  className={join(
-                    'flex items-center cursor-pointer transition-colors',
-                    'hover:bg-accent/10 focus:bg-accent/10',
-                    sizeVariants[size].options,
-                    option.disabled && 'opacity-50 cursor-not-allowed',
-                    index === highlightedIndex && 'bg-accent/20',
-                    value === option.value && 'bg-accent/30'
-                  )}
-                  onClick={() => handleOptionClick(option)}
-                  role='option'
-                  aria-selected={value === option.value}
-                  aria-disabled={option.disabled}
-                  data-select-option='true'
-                  data-value={option.value}
-                  data-highlighted={index === highlightedIndex}
-                  data-option-index={index}
-                >
-                  <div className='flex-1 min-w-0'>
-                    <div className='font-medium'>{option.text}</div>
-                    {option.description && <div className='text-xs opacity-70 mt-0.5'>{option.description}</div>}
-                  </div>
-                  {value === option.value && <Check size={16} className='ml-2 text-primary flex-shrink-0' />}
-                </div>
-              ))
-            ) : showAddOption ? (
-              <div
-                className={join(
-                  'flex items-center cursor-pointer transition-colors',
-                  'hover:bg-accent/10 focus:bg-accent/10',
-                  sizeVariants[size].options
-                )}
-                onClick={handleAddClick}
-                role='option'
-                aria-selected={false}
-                data-select-add-option='true'
-              >
-                <Plus size={16} className='mr-2 text-primary flex-shrink-0' />
-                <div className='flex-1 min-w-0'>
-                  <div className='font-medium'>Add "{searchTerm}"</div>
-                </div>
-              </div>
-            ) : (
-              <div className='px-3 py-2 text-sm opacity-70 text-center'>
-                {searchable && searchTerm ? 'No results found' : 'No options available'}
-              </div>
-            )}
-          </ScrollArea>
-        </div>
-      )}
-    </div>
-  );
+					{/* Options */}
+					<ScrollArea ref={optionsContainerRef} viewportClassName='max-h-60'>
+						{filteredOptions.length > 0 ? (
+							filteredOptions.map((option, index) => (
+								<div
+									key={option.value}
+									id={getOptionId(index)}
+									className={join(
+										'flex items-center cursor-pointer transition-colors',
+										'hover:bg-accent/10 focus:bg-accent/10',
+										sizeVariants[size].options,
+										option.disabled && 'opacity-50 cursor-not-allowed',
+										index === highlightedIndex && 'bg-accent/20',
+										value === option.value && 'bg-accent/30'
+									)}
+									onClick={() => handleOptionClick(option)}
+									role='option'
+									aria-selected={value === option.value}
+									aria-disabled={option.disabled}
+									data-select-option='true'
+									data-value={option.value}
+									data-highlighted={index === highlightedIndex}
+									data-option-index={index}
+								>
+									<div className='flex-1 min-w-0'>
+										<div className='font-medium'>{option.text}</div>
+										{option.description && <div className='text-xs opacity-70 mt-0.5'>{option.description}</div>}
+									</div>
+									{value === option.value && <Check size={16} className='ml-2 text-primary flex-shrink-0' />}
+								</div>
+							))
+						) : showAddOption ? (
+							<div
+								className={join(
+									'flex items-center cursor-pointer transition-colors',
+									'hover:bg-accent/10 focus:bg-accent/10',
+									sizeVariants[size].options
+								)}
+								onClick={handleAddClick}
+								role='option'
+								aria-selected={false}
+								data-select-add-option='true'
+								aria-label={`Add ${searchTerm} as a new option`}
+							>
+								<div className='flex-1 min-w-0'>
+									<div className='font-medium'>Add "{searchTerm}"</div>
+								</div>
+							</div>
+						) : (
+							<div className='px-3 py-2 text-sm opacity-70 text-center'>
+								{searchable && searchTerm ? 'No results found' : 'No options available'}
+							</div>
+						)}
+					</ScrollArea>
+				</div>
+			)}
+		</div>
+	);
 }

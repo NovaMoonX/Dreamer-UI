@@ -348,7 +348,7 @@ const selectProps = [
     name: 'allowAdd',
     type: 'boolean',
     default: 'false',
-    description: 'Whether to allow adding new options when search query doesn\'t match.',
+    description: 'Whether to allow adding new options when search query doesn\'t match. Requires searchable to be true.',
   },
   {
     name: 'size',
