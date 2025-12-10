@@ -7,6 +7,7 @@ const tableOfContents = [
   { id: 'examples', title: 'Examples', level: 1 },
   { id: 'basic-usage', title: 'Basic Usage', level: 2 },
   { id: 'with-search', title: 'With Search', level: 2 },
+  { id: 'with-add', title: 'With Add', level: 2 },
   { id: 'disabled-state', title: 'Disabled State', level: 2 },
   { id: 'clearable', title: 'Clearable', level: 2 },
   { id: 'props', title: 'Props', level: 1 },
@@ -68,6 +69,46 @@ const selectExamples = [
 }`,
     children: (
       <SearchableSelect />
+    ),
+  },
+  {
+    id: 'with-add',
+    title: 'With Add',
+    description: 'Searchable select with ability to add new options.',
+    code: `function SelectWithAdd() {
+  const [value, setValue] = useState('');
+  const [options, setOptions] = useState([
+    { text: 'React', value: 'react' },
+    { text: 'Vue', value: 'vue' },
+    { text: 'Angular', value: 'angular' },
+    { text: 'Svelte', value: 'svelte' }
+  ]);
+  
+  const handleAdd = (newValue: string) => {
+    setOptions([...options, { text: newValue, value: newValue.toLowerCase().replace(/\\s+/g, '-') }]);
+    setValue(newValue.toLowerCase().replace(/\\s+/g, '-'));
+  };
+  
+  return (
+    <div className='max-w-xs'>
+      <Select
+        searchable
+        allowAdd
+        options={options}
+        value={value}
+        onChange={setValue}
+        onAdd={handleAdd}
+        placeholder="Select or add framework..."
+        searchPlaceholder="Search or type to add..."
+      />
+      <div className='text-sm text-gray-500 mt-2'>
+        Selected: {value || 'None'}
+      </div>
+    </div>
+  );
+}`,
+    children: (
+      <SelectWithAdd />
     ),
   },
   {
@@ -182,6 +223,39 @@ function SearchableSelect() {
   );
 }
 
+function SelectWithAdd() {
+  const [value, setValue] = useState('');
+  const [options, setOptions] = useState([
+    { text: 'React', value: 'react' },
+    { text: 'Vue', value: 'vue' },
+    { text: 'Angular', value: 'angular' },
+    { text: 'Svelte', value: 'svelte' }
+  ]);
+  
+  const handleAdd = (newValue: string) => {
+    setOptions([...options, { text: newValue, value: newValue.toLowerCase().replace(/\s+/g, '-') }]);
+    setValue(newValue.toLowerCase().replace(/\s+/g, '-'));
+  };
+  
+  return (
+    <div className='max-w-xs'>
+      <Select
+        searchable
+        allowAdd
+        options={options}
+        value={value}
+        onChange={setValue}
+        onAdd={handleAdd}
+        placeholder="Select or add framework..."
+        searchPlaceholder="Search or type to add..."
+      />
+      <div className='text-sm text-gray-500 mt-2'>
+        Selected: {value || 'None'}
+      </div>
+    </div>
+  );
+}
+
 function DisabledSelect() {
   const [value, setValue] = useState('');
   
@@ -271,6 +345,12 @@ const selectProps = [
     description: 'Whether to show a clear button to reset selection.',
   },
   {
+    name: 'allowAdd',
+    type: 'boolean',
+    default: 'false',
+    description: 'Whether to allow adding new options when search query doesn\'t match. Requires searchable to be true.',
+  },
+  {
     name: 'size',
     type: '"sm" | "md" | "lg"',
     default: '"md"',
@@ -285,6 +365,11 @@ const selectProps = [
     name: 'onSearch',
     type: '(searchTerm: string) => void',
     description: 'Callback fired when search input changes (searchable mode).',
+  },
+  {
+    name: 'onAdd',
+    type: '(value: string) => void',
+    description: 'Callback fired when adding a new option (allowAdd mode).',
   },
   {
     name: 'searchPlaceholder',

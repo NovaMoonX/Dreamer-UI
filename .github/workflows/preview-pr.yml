@@ -22,15 +22,16 @@ jobs:
         run: |
           npm ci
           npm run build
+          tsc --project tsconfig.lib.json
           npm pack
       - name: Install App Dependencies with Local Lib
         working-directory: app
         run: |
-          npm install ../lib/*.tgz
           npm ci
+          npm install ../lib/*.tgz
       - name: Build App
         working-directory: app
-        run: npm run build
+        run: npm run build:local
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
