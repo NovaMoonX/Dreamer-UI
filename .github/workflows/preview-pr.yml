@@ -27,8 +27,8 @@ jobs:
       - name: Install App Dependencies with Local Lib
         working-directory: app
         run: |
-          npm install ../lib/*.tgz
           npm ci
+          npm install ../lib/*.tgz
       - name: Build App
         working-directory: app
         run: npm run build:local
