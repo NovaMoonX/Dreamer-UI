@@ -1,6 +1,6 @@
 {
   "name": "@moondreamsdev/dreamer-ui",
-  "version": "1.7.24",
+  "version": "1.7.26",
   "homepage": "https://ui.moondreams.dev",
   "publishConfig": {
     "access": "public"
@@ -18,32 +18,32 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/src/index.d.ts",
       "import": "./dist/index.esm.js",
       "require": "./dist/index.js"
     },
     "./components": {
-      "types": "./dist/components.d.ts",
+      "types": "./dist/src/components/index.d.ts",
       "import": "./dist/components.esm.js",
       "require": "./dist/components.js"
     },
     "./hooks": {
-      "types": "./dist/hooks.d.ts",
+      "types": "./dist/src/hooks/index.d.ts",
       "import": "./dist/hooks.esm.js",
       "require": "./dist/hooks.js"
     },
     "./providers": {
-      "types": "./dist/providers.d.ts",
+      "types": "./dist/src/providers/index.d.ts",
       "import": "./dist/providers.esm.js",
       "require": "./dist/providers.js"
     },
     "./symbols": {
-      "types": "./dist/symbols.d.ts",
+      "types": "./dist/src/symbols/index.d.ts",
       "import": "./dist/symbols.esm.js",
       "require": "./dist/symbols.js"
     },
     "./utils": {
-      "types": "./dist/utils.d.ts",
+      "types": "./dist/src/utils/index.d.ts",
       "import": "./dist/utils.esm.js",
       "require": "./dist/utils.js"
     },
@@ -65,6 +65,7 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run build:lib && npm run build:setup && npm run build:types",
+    "build:watch": "vite build --config vite.config.lib.mts --watch & tsc --project tsconfig.lib.json --watch",
     "build:lib": "vite build --config vite.config.lib.mts",
     "build:types": "tsc --project tsconfig.lib.json",
     "build:demo": "tsc -b && vite build",
