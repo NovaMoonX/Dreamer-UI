@@ -65,6 +65,7 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run build:lib && npm run build:setup && npm run build:types",
+    "build:watch": "vite build --config vite.config.lib.mts --watch & tsc --project tsconfig.lib.json --watch",
     "build:lib": "vite build --config vite.config.lib.mts",
     "build:types": "tsc --project tsconfig.lib.json",
     "build:demo": "tsc -b && vite build",
