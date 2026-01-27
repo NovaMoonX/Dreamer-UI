@@ -107,7 +107,7 @@ export function Popover({
 	const triggerRef = useRef<HTMLElement>(null);
 	const previousFocusRef = useRef<HTMLElement | null>(null);
 	const popoverId = useId();
-	const hoverTimeoutRef = useRef<number | null>(null);
+	const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	const effectivePlacement = useAutoSwitchPlacement({
 		internalIsOpen,
