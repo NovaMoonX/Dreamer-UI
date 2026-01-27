@@ -17,19 +17,19 @@ jobs:
           node-version: 20
           registry-url: 'https://registry.npmjs.org/'
 
-      - name: Install and Build Library
+      - name: Install lib deps
         working-directory: lib
-        run: |
-          npm ci
-          npm run build
-          tsc --project tsconfig.lib.json
-          npm pack
-      - name: Install App Dependencies with Local Lib
+        run: npm ci
+
+      - name: Build lib
+        working-directory: lib
+        run: npm run build
+
+      - name: Install app deps
         working-directory: app
-        run: |
-          npm ci
-          npm install ../lib/*.tgz
-      - name: Build App
+        run: npm ci
+
+      - name: Build app
         working-directory: app
         run: npm run build:local
       - uses: FirebaseExtended/action-hosting-deploy@v0
