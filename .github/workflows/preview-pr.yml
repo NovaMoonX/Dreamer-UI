@@ -25,9 +25,13 @@ jobs:
         working-directory: lib
         run: npm run build
 
-      - name: Install app deps
+      - name: Install local lib
         working-directory: app
-        run: npm ci
+        run: npm install ../lib
+
+      - name: Install remaining app deps
+        working-directory: app
+        run: npm ci --ignore-scripts
 
       - name: Build app
         working-directory: app
